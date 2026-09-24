@@ -1,0 +1,693 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Loan Management Portal</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- ================= LOGIN PAGE ================= -->
+
+<div id="loginPage" class="login-page">
+
+    <div class="login-card">
+
+        <div class="logo-box">
+            <div class="logo">LP</div>
+            <h1>LoanPortal</h1>
+            <p>Loan Management System</p>
+        </div>
+
+        <div class="form-group">
+            <label>Login ID</label>
+            <input
+                type="text"
+                id="loginId"
+                placeholder="Enter your login ID"
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+
+            <div class="password-box">
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter password"
+                >
+
+                <button onclick="togglePassword()" type="button">
+                    👁
+                </button>
+            </div>
+        </div>
+
+        <button class="login-btn" onclick="login()">
+            Login
+        </button>
+
+        <p id="loginError" class="login-error"></p>
+
+        <div class="demo-login">
+
+            <p>Demo Accounts</p>
+
+            <button onclick="fillLogin('AG1001','agent123')">
+                Agent
+            </button>
+
+            <button onclick="fillLogin('TL1001','tl123')">
+                TL
+            </button>
+
+            <button onclick="fillLogin('MGR1001','manager123')">
+                Manager
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= APPLICATION ================= -->
+
+<div id="app" class="app hidden">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="logo">LP</div>
+
+            <div>
+                <h2>LoanPortal</h2>
+                <small>Management System</small>
+            </div>
+        </div>
+
+        <nav>
+
+            <button class="nav-item active" onclick="showSection('dashboard')">
+                <span>📊</span>
+                Dashboard
+            </button>
+
+            <button class="nav-item" onclick="showSection('customers')">
+                <span>👥</span>
+                Customers
+            </button>
+
+            <button
+                id="assignmentNav"
+                class="nav-item"
+                onclick="showSection('assignments')"
+            >
+                <span>🔄</span>
+                Assignments
+            </button>
+
+            <button
+                id="performanceNav"
+                class="nav-item"
+                onclick="showSection('performance')"
+            >
+                <span>📈</span>
+                Performance
+            </button>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="logged-user">
+
+                <div class="avatar" id="userAvatar">
+                    A
+                </div>
+
+                <div>
+                    <strong id="sidebarUserName">
+                        User
+                    </strong>
+
+                    <small id="sidebarUserRole">
+                        Agent
+                    </small>
+                </div>
+
+            </div>
+
+            <button class="logout-btn" onclick="logout()">
+                🚪 Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main">
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div>
+                <h2 id="pageTitle">
+                    Dashboard
+                </h2>
+
+                <p id="pageSubtitle">
+                    Welcome back
+                </p>
+            </div>
+
+            <div class="top-user">
+
+                <div class="notification">
+                    🔔
+                </div>
+
+                <div class="avatar small" id="topAvatar">
+                    A
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= DASHBOARD ================= -->
+
+        <section id="dashboardSection" class="section">
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-icon blue">👥</div>
+
+                    <div>
+                        <p>Total Customers</p>
+                        <h2 id="totalCustomers">0</h2>
+                    </div>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-icon orange">⏳</div>
+
+                    <div>
+                        <p>Pending</p>
+                        <h2 id="pendingCustomers">0</h2>
+                    </div>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-icon green">✓</div>
+
+                    <div>
+                        <p>Eligible</p>
+                        <h2 id="eligibleCustomers">0</h2>
+                    </div>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">💰</div>
+
+                    <div>
+                        <p>Total Loan Value</p>
+                        <h2 id="totalLoan">₹0</h2>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- Quick actions -->
+
+            <div class="dashboard-grid">
+
+                <div class="panel">
+
+                    <div class="panel-header">
+                        <div>
+                            <h3>Recent Customers</h3>
+                            <p>Latest applications</p>
+                        </div>
+
+                        <button onclick="showSection('customers')" class="view-btn">
+                            View All
+                        </button>
+                    </div>
+
+                    <div id="recentCustomers"></div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-header">
+                        <div>
+                            <h3>Application Status</h3>
+                            <p>Current pipeline</p>
+                        </div>
+                    </div>
+
+                    <div class="status-bars">
+
+                        <div class="status-row">
+                            <span>Pending</span>
+                            <strong id="statusPending">0</strong>
+                        </div>
+
+                        <div class="progress">
+                            <div id="pendingBar"></div>
+                        </div>
+
+
+                        <div class="status-row">
+                            <span>Eligible</span>
+                            <strong id="statusEligible">0</strong>
+                        </div>
+
+                        <div class="progress">
+                            <div id="eligibleBar"></div>
+                        </div>
+
+
+                        <div class="status-row">
+                            <span>Completed</span>
+                            <strong id="statusCompleted">0</strong>
+                        </div>
+
+                        <div class="progress">
+                            <div id="completedBar"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= CUSTOMERS ================= -->
+
+        <section id="customersSection" class="section hidden">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Customers</h2>
+                    <p id="customerDescription">
+                        Customers assigned to you
+                    </p>
+                </div>
+
+                <button
+                    id="addCustomerButton"
+                    class="primary-btn"
+                    onclick="openAddCustomer()"
+                >
+                    + Add Customer
+                </button>
+
+            </div>
+
+
+            <div class="filters">
+
+                <input
+                    type="text"
+                    id="searchCustomer"
+                    placeholder="🔍 Search customer..."
+                    oninput="renderCustomers()"
+                >
+
+                <select id="statusFilter" onchange="renderCustomers()">
+
+                    <option value="all">
+                        All Status
+                    </option>
+
+                    <option value="Pending">
+                        Pending
+                    </option>
+
+                    <option value="Eligible">
+                        Eligible
+                    </option>
+
+                    <option value="Completed">
+                        Completed
+                    </option>
+
+                    <option value="Review">
+                        Review
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Customer</th>
+                            <th>Loan Amount</th>
+                            <th>Salary</th>
+                            <th>CIBIL</th>
+                            <th>BT Amount</th>
+                            <th>Status</th>
+                            <th>Agent</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="customerTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= ASSIGNMENTS ================= -->
+
+        <section id="assignmentsSection" class="section hidden">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Customer Assignments</h2>
+                    <p>Assign and reassign customers to agents</p>
+                </div>
+
+            </div>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Customer</th>
+                            <th>Loan</th>
+                            <th>CIBIL</th>
+                            <th>Current Agent</th>
+                            <th>Assign To</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="assignmentTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PERFORMANCE ================= -->
+
+        <section id="performanceSection" class="section hidden">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Team Performance</h2>
+                    <p>Monitor your team's application activity</p>
+                </div>
+
+            </div>
+
+            <div id="performanceCards" class="performance-grid"></div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- ================= CUSTOMER MODAL ================= -->
+
+<div id="customerModal" class="modal hidden">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <div>
+                <h2 id="modalTitle">
+                    Customer Application
+                </h2>
+
+                <p>
+                    Customer loan information
+                </p>
+            </div>
+
+            <button onclick="closeModal()" class="close-btn">
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="customerForm">
+
+            <input type="hidden" id="customerId">
+
+
+            <h3 class="form-section-title">
+                Personal Information
+            </h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input id="customerName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Age</label>
+                    <input id="customerAge" type="number">
+                </div>
+
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input id="customerPhone">
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <input id="customerAddress">
+                </div>
+
+            </div>
+
+
+            <h3 class="form-section-title">
+                Loan Information
+            </h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Loan Amount</label>
+                    <input id="loanAmount" type="number">
+                </div>
+
+                <div class="form-group">
+                    <label>BT Amount</label>
+                    <input id="btAmount" type="number">
+                </div>
+
+                <div class="form-group">
+                    <label>BT Bank</label>
+                    <input id="btBank">
+                </div>
+
+                <div class="form-group">
+                    <label>In-Hand Loan Amount</label>
+                    <input id="inHandAmount" type="number">
+                </div>
+
+            </div>
+
+
+            <h3 class="form-section-title">
+                Employment & Credit
+            </h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Monthly Salary</label>
+                    <input id="salary" type="number">
+                </div>
+
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input id="companyName">
+                </div>
+
+                <div class="form-group">
+                    <label>Company Listed Bank</label>
+                    <input id="companyBank">
+                </div>
+
+                <div class="form-group">
+                    <label>CIBIL Score</label>
+                    <input id="cibil" type="number">
+                </div>
+
+                <div class="form-group">
+                    <label>Number of Enquiries</label>
+                    <input id="enquiries" type="number">
+                </div>
+
+                <div class="form-group">
+                    <label>Credit Cards Used</label>
+                    <input id="creditCards">
+                </div>
+
+                <div class="form-group">
+                    <label>Delayed Payments</label>
+                    <input id="delays">
+                </div>
+
+                <div class="form-group">
+                    <label>Outstanding Amount</label>
+                    <input id="outstanding" type="number">
+                </div>
+
+            </div>
+
+
+            <h3 class="form-section-title">
+                Existing EMI
+            </h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>ICICI EMI</label>
+                    <input id="iciciEmi" type="number">
+                </div>
+
+                <div class="form-group">
+                    <label>HDFC EMI</label>
+                    <input id="hdfcEmi" type="number">
+                </div>
+
+                <div class="form-group">
+                    <label>Other EMI</label>
+                    <input id="otherEmi" type="number">
+                </div>
+
+            </div>
+
+
+            <h3 class="form-section-title">
+                Application
+            </h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Status</label>
+
+                    <select id="customerStatus">
+
+                        <option>Pending</option>
+                        <option>Eligible</option>
+                        <option>Review</option>
+                        <option>Completed</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+                    <label>Banks Already Applied</label>
+                    <input id="banksApplied">
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Call Remarks</label>
+
+                <textarea
+                    id="remarks"
+                    rows="4"
+                    placeholder="Enter customer call remarks..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="closeModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Save Application
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
+

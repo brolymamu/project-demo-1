@@ -321,13 +321,30 @@
                     </p>
                 </div>
 
-                <button
-                    id="addCustomerButton"
-                    class="primary-btn"
-                    onclick="openAddCustomer()"
-                >
-                    + Add Customer
-                </button>
+                <div class="section-actions">
+
+                    <label
+                        id="uploadCustomersButton"
+                        class="secondary-btn upload-btn hidden"
+                    >
+                        ↑ Upload Customers
+                        <input
+                            id="customerFile"
+                            type="file"
+                            accept=".csv,text/csv"
+                            onchange="uploadCustomers(event)"
+                        >
+                    </label>
+
+                    <button
+                        id="addCustomerButton"
+                        class="primary-btn"
+                        onclick="openAddCustomer()"
+                    >
+                        + Add Customer
+                    </button>
+
+                </div>
 
             </div>
 

@@ -1861,9 +1861,19 @@ function getAssignmentTargets() {
     return [];
 }
 
+function getFilteredAssignmentCustomers() {
+    const assignmentStatus = document.getElementById("assignmentStatusFilter")?.value || "all";
+
+    return filterCustomers(getVisibleCustomers(), "assignment").filter(customer => {
+        if (assignmentStatus === "unassigned") return !customer.agentId;
+        if (assignmentStatus === "assigned") return Boolean(customer.agentId);
+        return true;
+    });
+}
+
 function renderAssignments() {
 
-    const data = filterCustomers(getVisibleCustomers(), "assignment");
+    const data = getFilteredAssignmentCustomers();
 
     const body = document.getElementById("assignmentTableBody");
     const assignmentTargets = getAssignmentTargets();
@@ -1986,7 +1996,7 @@ function toggleAssignmentSelection(id, isSelected) {
 }
 
 function toggleAllAssignments(checkbox) {
-    const filteredCustomers = filterCustomers(getVisibleCustomers(), "assignment");
+    const filteredCustomers = getFilteredAssignmentCustomers();
     filteredCustomers.forEach(customer => {
         if (checkbox.checked) selectedAssignmentCustomerIds.add(customer.id);
         else selectedAssignmentCustomerIds.delete(customer.id);

@@ -544,6 +544,12 @@
                     oninput="renderAssignments()"
                 >
 
+                <select id="assignmentStatusFilter" onchange="renderAssignments()">
+                    <option value="all">All Assignment Status</option>
+                    <option value="unassigned">Not Assigned</option>
+                    <option value="assigned">Assigned</option>
+                </select>
+
             </div>
 
             <div class="table-container">

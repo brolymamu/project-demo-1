@@ -1861,17 +1861,48 @@ function getAssignmentTargets() {
     return [];
 }
 
+function getAssignmentFilterMembers() {
+    return users
+        .filter(user => ["agent", "tl"].includes(user.role))
+        .sort((first, second) => first.name.localeCompare(second.name));
+}
+
+function updateAssignmentAssigneeFilter() {
+    const select = document.getElementById("assignmentAssigneeFilter");
+    if (!select) return;
+
+    const currentValue = select.value;
+    const members = getAssignmentFilterMembers();
+    select.innerHTML = `
+        <option value="all">All Assignees</option>
+        <option value="unassigned">None Assigned</option>
+        ${members.map(member => `
+            <option value="${escapeHTML(member.id)}">
+                ${escapeHTML(member.name)} (${member.role === "tl" ? "TL" : "Agent"})
+            </option>
+        `).join("")}
+    `;
+    select.value = ["all", "unassigned", ...members.map(member => member.id)].includes(currentValue)
+        ? currentValue
+        : "all";
+}
+
 function getFilteredAssignmentCustomers() {
     const assignmentStatus = document.getElementById("assignmentStatusFilter")?.value || "all";
+    const assignee = document.getElementById("assignmentAssigneeFilter")?.value || "all";
 
     return filterCustomers(getVisibleCustomers(), "assignment").filter(customer => {
-        if (assignmentStatus === "unassigned") return !customer.agentId;
-        if (assignmentStatus === "assigned") return Boolean(customer.agentId);
+        if (assignmentStatus === "unassigned" && customer.agentId) return false;
+        if (assignmentStatus === "assigned" && !customer.agentId) return false;
+        if (assignee === "unassigned") return !customer.agentId;
+        if (assignee !== "all") return customer.agentId === assignee;
         return true;
     });
 }
 
 function renderAssignments() {
+
+    updateAssignmentAssigneeFilter();
 
     const data = getFilteredAssignmentCustomers();
 

@@ -544,6 +544,11 @@
                     oninput="renderAssignments()"
                 >
 
+                <select id="assignmentAssigneeFilter" onchange="renderAssignments()">
+                    <option value="all">All Assignees</option>
+                    <option value="unassigned">None Assigned</option>
+                </select>
+
                 <select id="assignmentStatusFilter" onchange="renderAssignments()">
                     <option value="all">All Assignment Status</option>
                     <option value="unassigned">Not Assigned</option>

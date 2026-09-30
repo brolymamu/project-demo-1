@@ -1153,12 +1153,54 @@ function openCustomer(id) {
 
 
     fillCustomerForm(customer);
+    renderCustomerHistory(customer);
 
 
     document
         .getElementById("customerModal")
         .classList.remove("hidden");
 
+}
+
+
+/* ================= CUSTOMER ACTIVITY HISTORY ================= */
+
+function recordCustomerActivity(customer, type, message) {
+    if (!customer) return;
+
+    if (!Array.isArray(customer.activityHistory)) {
+        customer.activityHistory = [];
+    }
+
+    customer.activityHistory.push({
+        type,
+        message,
+        by: currentUser ? `${currentUser.name} (${currentUser.id})` : "System",
+        at: new Date().toISOString()
+    });
+}
+
+function renderCustomerHistory(customer) {
+    const container = document.getElementById("customerHistory");
+    if (!container) return;
+
+    const history = Array.isArray(customer.activityHistory)
+        ? [...customer.activityHistory].reverse()
+        : [];
+
+    container.innerHTML = history.length
+        ? history.map(entry => `
+            <div class="history-entry">
+                <strong>${escapeHTML(entry.message || "Activity recorded")}</strong>
+                <small>By ${escapeHTML(entry.by || "System")} · ${escapeHTML(formatActivityDate(entry.at))}</small>
+            </div>
+        `).join("")
+        : '<p class="history-empty">No activity recorded yet.</p>';
+}
+
+function formatActivityDate(value) {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? "Unknown date" : date.toLocaleString("en-IN");
 }
 
 
@@ -1261,6 +1303,7 @@ document
             let customer = customers.find(
                 c => c.id === id
             );
+            const previousRemarks = customer ? String(customer.remarks || "") : "";
 
             if (isNew) {
                 const assignedAgent = currentUser.role === "agent"
@@ -1455,7 +1498,15 @@ document
                     .value;
 
             if (isNew) {
+                customer.activityHistory = [];
                 customers.push(customer);
+                recordCustomerActivity(customer, "created", "Customer application created");
+                if (customer.agentId) {
+                    const assignedAgent = users.find(user => user.id === customer.agentId);
+                    recordCustomerActivity(customer, "assignment", `Assigned to ${assignedAgent ? assignedAgent.name : customer.agentId}`);
+                }
+            } else if (customer.remarks !== previousRemarks) {
+                recordCustomerActivity(customer, "remarks", `Remarks updated: ${customer.remarks || "(cleared)"}`);
             }
 
             saveData();
@@ -1510,6 +1561,8 @@ function openAddCustomer() {
     document
         .getElementById("customerId")
         .value = "";
+
+    renderCustomerHistory({ activityHistory: [] });
 
 
     document
@@ -1800,7 +1853,7 @@ function createCustomerFromRow(row, index) {
     );
     const assignedAgent = eligibleAgents.find(user => user.id === requestedAgentId);
 
-    return {
+    const customer = {
         id: Date.now() + index,
         name: get("name", "customername", "applicantname", "customer") || `Imported Customer ${index + 1}`,
         age: parseImportNumber(get("age")),
@@ -1829,8 +1882,15 @@ function createCustomerFromRow(row, index) {
             ? get("status")
             : "Pending",
         remarks: get("remarks", "callremarks"),
-        agentId: assignedAgent ? assignedAgent.id : ""
+        agentId: assignedAgent ? assignedAgent.id : "",
+        activityHistory: []
     };
+
+    recordCustomerActivity(customer, "created", "Customer imported");
+    if (assignedAgent) {
+        recordCustomerActivity(customer, "assignment", `Assigned to ${assignedAgent.name}`);
+    }
+    return customer;
 }
 
 /* ================= CLOSE MODAL ================= */
@@ -2080,7 +2140,13 @@ function bulkAssignCustomers() {
 
     const selectedSet = new Set(selectedIds);
     customers.forEach(customer => {
-        if (selectedSet.has(customer.id)) customer.agentId = assignee.id;
+        if (!selectedSet.has(customer.id)) return;
+
+        const previousAgentId = customer.agentId || "";
+        customer.agentId = assignee.id;
+        if (previousAgentId !== assignee.id) {
+            recordCustomerActivity(customer, "assignment", `Assigned to ${assignee.name}`);
+        }
     });
     selectedAssignmentCustomerIds.clear();
     saveData();
@@ -2130,9 +2196,17 @@ function reassignCustomer(id) {
     if (!customer) return;
 
 
-    customer.agentId =
-        newAgent;
+    const previousAgentId = customer.agentId || "";
+    customer.agentId = newAgent;
 
+    if (previousAgentId !== newAgent) {
+        const assignedAgent = users.find(user => user.id === newAgent);
+        recordCustomerActivity(
+            customer,
+            "assignment",
+            `Assigned to ${assignedAgent ? assignedAgent.name : newAgent}`
+        );
+    }
 
     saveData();
 

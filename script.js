@@ -288,6 +288,8 @@ let customers = [
 let currentUser = null;
 let selectedCustomerIds = new Set();
 let selectedAssignmentCustomerIds = new Set();
+let callbackNotificationTimer = null;
+const notifiedCallbackIds = new Set();
 
 
 /* ================= INITIALIZATION ================= */
@@ -311,6 +313,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
     }
+
+    requestCallbackNotificationPermission();
+    startCallbackReminderWatcher();
 
 });
 
@@ -371,6 +376,8 @@ function login() {
         .textContent = "";
 
     showApplication();
+    requestCallbackNotificationPermission();
+    startCallbackReminderWatcher();
 
 }
 
@@ -1159,6 +1166,7 @@ function openCustomer(id) {
 
     fillCustomerForm(customer);
     renderCustomerHistory(customer);
+    updateCallbackNotificationStatus();
 
 
     document
@@ -1206,6 +1214,70 @@ function renderCustomerHistory(customer) {
 function formatActivityDate(value) {
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? "Unknown date" : date.toLocaleString("en-IN");
+}
+
+function toDateTimeLocalValue(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    const offset = date.getTimezoneOffset();
+    return new Date(date.getTime() - offset * 60000).toISOString().slice(0, 16);
+}
+
+function requestCallbackNotificationPermission() {
+    if ("Notification" in window && Notification.permission === "default") {
+        // Permission is requested after login because browsers require user interaction.
+        return;
+    }
+    updateCallbackNotificationStatus();
+}
+
+function enableCallbackNotifications() {
+    if (!("Notification" in window)) {
+        updateCallbackNotificationStatus("This browser does not support notifications.");
+        return;
+    }
+
+    Notification.requestPermission().then(permission => {
+        updateCallbackNotificationStatus(
+            permission === "granted"
+                ? "Notifications are enabled."
+                : "Notifications are blocked. Allow them in browser settings."
+        );
+        if (permission === "granted") startCallbackReminderWatcher();
+    });
+}
+
+function updateCallbackNotificationStatus(message) {
+    const status = document.getElementById("callbackNotificationStatus");
+    if (!status) return;
+    status.textContent = message || (
+        "Notification" in window && Notification.permission === "granted"
+            ? "Notifications are enabled."
+            : "Notifications are not enabled."
+    );
+}
+
+function startCallbackReminderWatcher() {
+    if (callbackNotificationTimer) clearInterval(callbackNotificationTimer);
+    checkCallbackReminders();
+    callbackNotificationTimer = setInterval(checkCallbackReminders, 30000);
+}
+
+function checkCallbackReminders() {
+    if (!currentUser || !("Notification" in window) || Notification.permission !== "granted") return;
+
+    const now = Date.now();
+    getVisibleCustomers().forEach(customer => {
+        const callbackTime = new Date(customer.callbackAt || "").getTime();
+        if (!Number.isFinite(callbackTime) || callbackTime > now || notifiedCallbackIds.has(customer.id)) return;
+
+        new Notification("Customer callback due", {
+            body: `Call ${customer.name}${customer.phone ? ` (${customer.phone})` : ""} now.`,
+            tag: `callback-${customer.id}`
+        });
+        notifiedCallbackIds.add(customer.id);
+    });
 }
 
 
@@ -1282,6 +1354,9 @@ function fillCustomerForm(c) {
     document.getElementById("remarks").value =
         c.remarks || "";
 
+    document.getElementById("callbackAt").value =
+        toDateTimeLocalValue(c.callbackAt);
+
 }
 
 
@@ -1309,6 +1384,7 @@ document
                 c => c.id === id
             );
             const previousRemarks = customer ? String(customer.remarks || "") : "";
+            const previousCallbackAt = customer ? String(customer.callbackAt || "") : "";
 
             if (isNew) {
                 const assignedAgent = currentUser.role === "agent"
@@ -1502,6 +1578,11 @@ document
                     .getElementById("remarks")
                     .value;
 
+            customer.callbackAt =
+                document
+                    .getElementById("callbackAt")
+                    .value;
+
             if (isNew) {
                 customer.activityHistory = [];
                 customers.push(customer);
@@ -1512,6 +1593,19 @@ document
                 }
             } else if (customer.remarks !== previousRemarks) {
                 recordCustomerActivity(customer, "remarks", `Remarks updated: ${customer.remarks || "(cleared)"}`);
+            }
+
+            if (customer.callbackAt !== previousCallbackAt) {
+                notifiedCallbackIds.delete(customer.id);
+                if (!isNew) {
+                    recordCustomerActivity(
+                        customer,
+                        "callback",
+                        customer.callbackAt
+                            ? `Callback scheduled for ${formatActivityDate(customer.callbackAt)}`
+                            : "Callback reminder cleared"
+                    );
+                }
             }
 
             saveData();
@@ -1767,7 +1861,8 @@ function canonicalImportHeader(value) {
         delays: ["delays", "delayedpayments", "paymentdelays"],
         outstanding: ["outstanding", "outstandingamount"],
         banksapplied: ["banksapplied", "appliedbanks"],
-        remarks: ["remarks", "callremarks", "comments"]
+        remarks: ["remarks", "callremarks", "comments"],
+        callbackat: ["callbackat", "callback", "callbacktime", "callbackdatetime", "followupat", "followuptime"]
     };
 
     for (const [canonical, variants] of Object.entries(aliases)) {
@@ -1784,7 +1879,7 @@ function canonicalImportHeader(value) {
 function rowsToCustomerRecords(grid) {
     const recognizedFields = new Set([
         "name", "customername", "phone", "loanamount", "salary", "cibil",
-        "address", "location", "age", "status", "agent", "agentid", "btamount"
+        "address", "location", "age", "status", "agent", "agentid", "btamount", "callbackat"
     ]);
     let headerRowIndex = 0;
     let bestHeaderScore = 0;
@@ -1888,6 +1983,7 @@ function createCustomerFromRow(row, index) {
             : "Pending",
         remarks: get("remarks", "callremarks"),
         agentId: assignedAgent ? assignedAgent.id : "",
+        callbackAt: get("callbackat", "callback", "callbacktime"),
         activityHistory: []
     };
 

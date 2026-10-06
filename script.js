@@ -1,10 +1,9 @@
 
-/* =========================================================
-   LOAN PORTAL FRONTEND DEMO
-========================================================= */
+/*
+   LOAN PORTAL FRONT*/
 
 
-/* ================= USERS ================= */
+/* ================= USERS ============ */
 
 let users = [
 
@@ -540,7 +539,13 @@ function getVisibleCustomers() {
 
     if (currentUser.role === "tl") {
 
-        return customers;
+        // A TL can see customers assigned to them or to agents in their team.
+        return customers.filter(customer => {
+            if (customer.agentId === currentUser.id) return true;
+
+            const assignedUser = users.find(user => user.id === customer.agentId);
+            return assignedUser?.role === "agent" && assignedUser.team === currentUser.team;
+        });
 
     }
 

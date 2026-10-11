@@ -1,59 +1,55 @@
 
-/*
-   LOAN PORTAL FRONT*/
 
-
-/* ================= USERS ============ */
 
 let users = [
 
     {
-        id: "AG1001",
-        password: "agent123",
+        id: "Malik",
+        password: "Login@123",
         name: "Saif Malik",
         role: "agent",
         team: "TEAM01",
-        branch: "Bangalore"
+        branch: "MAGADI"
     },
 
     {
-        id: "AG1002",
-        password: "agent456",
+        id: "Rahul",
+        password: "Login@123",
         name: "Rahul Kumar",
         role: "agent",
-        team: "TEAM01",
-        branch: "Bangalore"
+        team: "TEAM02",
+        branch: "Reva"
     },
 
     {
-        id: "AG1003",
-        password: "agent789",
+        id: "Ajay",
+        password: "Login@123",
         name: "Ajay Singh",
         role: "agent",
         team: "TEAM01",
-        branch: "Bangalore"
+        branch: "MAGADI"
     },
 
     {
-        id: "TL1001",
-        password: "tl123",
+        id: "Arun",
+        password: "TL@123",
         name: "Arun Kumar",
         role: "tl",
         team: "TEAM01",
-        branch: "Bangalore"
+        branch: "MAGADI"
     },
 
     {
-        id: "MGR1001",
-        password: "manager123",
+        id: "Vijay",
+        password: "Manager@123",
         name: "Vijay Sharma",
         role: "manager",
         branch: "Bangalore"
     },
 
     {
-        id: "BACKEND1001",
-        password: "backend123",
+        id: "Malik",
+        password: "backend@123",
         name: "Backend Administrator",
         role: "backend",
         branch: "Bangalore"
@@ -61,8 +57,6 @@ let users = [
 
 ];
 
-
-/* ================= SAMPLE CUSTOMERS ================= */
 
 let customers = [
 
@@ -283,7 +277,6 @@ let customers = [
 ];
 
 
-/* ================= CURRENT USER ================= */
 
 let currentUser = null;
 let selectedCustomerIds = new Set();
@@ -292,7 +285,6 @@ let callbackNotificationTimer = null;
 const notifiedCallbackIds = new Set();
 
 
-/* ================= INITIALIZATION ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -381,6 +373,16 @@ function login() {
 
 }
 
+document.addEventListener("keydown", event => {
+    if (
+        event.key === "Enter" &&
+        ["loginId", "password"].includes(event.target.id)
+    ) {
+        event.preventDefault();
+        login();
+    }
+});
+
 
 /* ================= SHOW APPLICATION ================= */
 
@@ -432,7 +434,7 @@ function showApplication() {
 }
 
 
-/* ================= PERMISSIONS ================= */
+
 
 function configurePermissions() {
 
@@ -737,14 +739,22 @@ function updateDashboard() {
             c => c.status === "Completed"
         ).length;
 
+    const rejected =
+        data.filter(
+            c => c.status === "Rejected"
+        ).length;
 
-    const loanTotal =
-        data.reduce(
-            (sum, c) =>
-                sum + Number(c.loanAmount || 0),
-            0
-        );
+    const approvedLoanTotal = data
+        .filter(c => ["Eligible", "Completed"].includes(c.status))
+        .reduce((sum, c) => sum + Number(c.loanAmount || 0), 0);
 
+    const pendingLoanTotal = data
+        .filter(c => ["Pending", "Review"].includes(c.status))
+        .reduce((sum, c) => sum + Number(c.loanAmount || 0), 0);
+
+    const rejectedLoanTotal = data
+        .filter(c => c.status === "Rejected")
+        .reduce((sum, c) => sum + Number(c.loanAmount || 0), 0);
 
     document
         .getElementById("totalCustomers")
@@ -762,12 +772,6 @@ function updateDashboard() {
 
 
     document
-        .getElementById("totalLoan")
-        .textContent =
-        formatMoney(loanTotal);
-
-
-    document
         .getElementById("statusPending")
         .textContent = pending;
 
@@ -780,6 +784,22 @@ function updateDashboard() {
     document
         .getElementById("statusCompleted")
         .textContent = completed;
+
+    document
+        .getElementById("statusRejected")
+        .textContent = rejected;
+
+    document
+        .getElementById("approvedLoanTotal")
+        .textContent = formatMoney(approvedLoanTotal);
+
+    document
+        .getElementById("pendingLoanTotal")
+        .textContent = formatMoney(pendingLoanTotal);
+
+    document
+        .getElementById("rejectedLoanTotal")
+        .textContent = formatMoney(rejectedLoanTotal);
 
 
     const percentage =
@@ -812,6 +832,11 @@ function updateDashboard() {
                 ? 0
                 : (completed / total) * 100
         ) + "%";
+
+    document
+        .getElementById("rejectedBar")
+        .style.width =
+        (total === 0 ? 0 : (rejected / total) * 100) + "%";
 
 
     renderRecentCustomers(data);
@@ -957,6 +982,10 @@ function renderCustomers() {
 
                     </td>
 
+                    <td class="customer-remark" title="${escapeHTML(c.remarks || "No remark yet")}">
+                        ${escapeHTML(c.remarks || "—")}
+                    </td>
+
                     <td>
                         ${escapeHTML(c.location || "—")}
                     </td>
@@ -1023,7 +1052,7 @@ function renderCustomers() {
 
             <tr>
 
-                <td colspan="${["tl", "manager", "backend"].includes(currentUser.role) ? 10 : 9}"
+                <td colspan="${["tl", "manager", "backend"].includes(currentUser.role) ? 11 : 10}"
                     style="text-align:center;padding:40px;">
 
                     No customers found.
@@ -1978,7 +2007,7 @@ function createCustomerFromRow(row, index) {
         hdfcEmi: parseImportNumber(get("hdfcemi")),
         otherEmi: parseImportNumber(get("otheremi")),
         banksApplied: get("banksapplied"),
-        status: ["Pending", "Eligible", "Review", "Completed"].includes(get("status"))
+        status: ["Pending", "Eligible", "Review", "Completed", "Rejected"].includes(get("status"))
             ? get("status")
             : "Pending",
         remarks: get("remarks", "callremarks"),
@@ -2003,6 +2032,18 @@ function closeModal() {
         .classList.add("hidden");
 
 }
+
+const customerModal = document.getElementById("customerModal");
+
+customerModal.addEventListener("click", event => {
+    if (event.target === customerModal) closeModal();
+});
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !customerModal.classList.contains("hidden")) {
+        closeModal();
+    }
+});
 
 
 /* ================= ASSIGNMENTS ================= */
@@ -2061,11 +2102,23 @@ function getFilteredAssignmentCustomers() {
     });
 }
 
+function getAssignmentSelectionLimit() {
+    const value = document.getElementById("assignmentSelectCount")?.value.trim();
+    if (!value) return null;
+
+    const count = Number(value);
+    return Number.isInteger(count) && count > 0 ? count : null;
+}
+
 function renderAssignments() {
 
     updateAssignmentAssigneeFilter();
 
     const data = getFilteredAssignmentCustomers();
+    const selectionLimit = getAssignmentSelectionLimit();
+    const selectableAssignmentIds = selectionLimit === null
+        ? null
+        : new Set(data.slice(0, selectionLimit).map(customer => customer.id));
 
     const body = document.getElementById("assignmentTableBody");
     const assignmentTargets = getAssignmentTargets();
@@ -2095,7 +2148,7 @@ function renderAssignments() {
                 <tr>
 
                     <td>
-                        <input type="checkbox" class="assignment-select" value="${c.id}" aria-label="Select ${escapeHTML(c.name)}" ${selectedAssignmentCustomerIds.has(c.id) ? "checked" : ""} onchange="toggleAssignmentSelection(${c.id}, this.checked)">
+                        <input type="checkbox" class="assignment-select" value="${c.id}" aria-label="Select ${escapeHTML(c.name)}" ${selectedAssignmentCustomerIds.has(c.id) ? "checked" : ""} ${selectableAssignmentIds && !selectableAssignmentIds.has(c.id) ? "disabled" : ""} onchange="toggleAssignmentSelection(${c.id}, this.checked)">
                     </td>
 
                     <td>
@@ -2182,6 +2235,16 @@ function renderAssignments() {
 }
 
 function toggleAssignmentSelection(id, isSelected) {
+    const selectionLimit = getAssignmentSelectionLimit();
+    if (isSelected && selectionLimit !== null) {
+        const allowedIds = new Set(
+            getFilteredAssignmentCustomers()
+                .slice(0, selectionLimit)
+                .map(customer => customer.id)
+        );
+        if (!allowedIds.has(id)) return;
+    }
+
     if (isSelected) selectedAssignmentCustomerIds.add(id);
     else selectedAssignmentCustomerIds.delete(id);
     renderAssignments();
@@ -2189,10 +2252,39 @@ function toggleAssignmentSelection(id, isSelected) {
 
 function toggleAllAssignments(checkbox) {
     const filteredCustomers = getFilteredAssignmentCustomers();
-    filteredCustomers.forEach(customer => {
-        if (checkbox.checked) selectedAssignmentCustomerIds.add(customer.id);
-        else selectedAssignmentCustomerIds.delete(customer.id);
-    });
+    const selectionLimit = getAssignmentSelectionLimit();
+    const customersToSelect = selectionLimit === null
+        ? filteredCustomers
+        : filteredCustomers.slice(0, selectionLimit);
+
+    if (checkbox.checked) {
+        customersToSelect.forEach(customer => selectedAssignmentCustomerIds.add(customer.id));
+    } else if (selectionLimit !== null) {
+        selectedAssignmentCustomerIds.clear();
+    } else {
+        filteredCustomers.forEach(customer => selectedAssignmentCustomerIds.delete(customer.id));
+    }
+
+    renderAssignments();
+}
+
+function selectAssignmentCount() {
+    const input = document.getElementById("assignmentSelectCount");
+    const requestedCount = Number(input.value);
+
+    if (!Number.isInteger(requestedCount) || requestedCount < 1) {
+        alert("Enter a whole number of at least 1.");
+        input.focus();
+        return;
+    }
+
+    const filteredCustomers = getFilteredAssignmentCustomers();
+
+    // Replace the selection so only the first N filtered rows remain selected.
+    selectedAssignmentCustomerIds = new Set(
+        filteredCustomers.slice(0, requestedCount).map(customer => customer.id)
+    );
+
     renderAssignments();
 }
 

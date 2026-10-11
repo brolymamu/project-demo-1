@@ -12,7 +12,7 @@
 
 <body>
 
-<!--LOGIN PAGE-->
+
 
 <div id="loginPage" class="login-page">
 
@@ -55,38 +55,17 @@
 
         <p id="loginError" class="login-error"></p>
 
-        <div class="demo-login">
-
-            <p>Demo Accounts</p>
-
-            <button onclick="fillLogin('AG1001','agent123')">
-                Agent
-            </button>
-
-            <button onclick="fillLogin('TL1001','tl123')">
-                TL
-            </button>
-
-            <button onclick="fillLogin('MGR1001','manager123')">
-                Manager
-            </button>
-
-            <button onclick="fillLogin('BACKEND1001','backend123')">
-                Backend
-            </button>
-
-        </div>
 
     </div>
 
 </div>
 
 
-<!-- ================= APPLICATION ================= -->
+
 
 <div id="app" class="app hidden">
 
-    <!-- SIDEBAR -->
+    
 
     <aside class="sidebar">
 
@@ -169,11 +148,10 @@
     </aside>
 
 
-    <!-- MAIN CONTENT -->
 
     <main class="main">
 
-        <!-- TOP BAR -->
+        
 
         <header class="topbar">
 
@@ -202,7 +180,7 @@
         </header>
 
 
-        <!-- ================= DASHBOARD ================= -->
+        
 
         <section id="dashboardSection" class="section">
 
@@ -232,25 +210,36 @@
                     <div class="stat-icon green">✓</div>
 
                     <div>
-                        <p>Eligible</p>
+                        <p>Eligible customers</p>
                         <h2 id="eligibleCustomers">0</h2>
-                    </div>
-                </div>
-
-
-                <div class="stat-card">
-                    <div class="stat-icon purple">💰</div>
-
-                    <div>
-                        <p>Total Loan Value</p>
-                        <h2 id="totalLoan">₹0</h2>
                     </div>
                 </div>
 
             </div>
 
-
-            <!-- Quick actions -->
+            <div class="loan-breakdown-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green">✓</div>
+                    <div>
+                        <p>Approved Loan Amount</p>
+                        <h2 id="approvedLoanTotal">₹0</h2>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">⏳</div>
+                    <div>
+                        <p>Pending Applications</p>
+                        <h2 id="pendingLoanTotal">₹0</h2>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">✕</div>
+                    <div>
+                        <p>Rejected</p>
+                        <h2 id="rejectedLoanTotal">₹0</h2>
+                    </div>
+                </div>
+            </div>
 
             <div class="dashboard-grid">
 
@@ -312,6 +301,15 @@
                             <div id="completedBar"></div>
                         </div>
 
+                        <div class="status-row">
+                            <span>Rejected</span>
+                            <strong id="statusRejected">0</strong>
+                        </div>
+
+                        <div class="progress">
+                            <div id="rejectedBar"></div>
+                        </div>
+
                     </div>
 
                 </div>
@@ -321,7 +319,7 @@
         </section>
 
 
-        <!-- ================= CUSTOMERS ================= -->
+
 
         <section id="customersSection" class="section hidden">
 
@@ -431,6 +429,10 @@
                         Review
                     </option>
 
+                    <option value="Rejected">
+                        Rejected
+                    </option>
+
                 </select>
 
             </div>
@@ -447,6 +449,7 @@
                                 <input type="checkbox" id="selectAllCustomers" aria-label="Select all visible customers" onchange="toggleAllCustomers(this)">
                             </th>
                             <th>Customer</th>
+                            <th>Latest Remark</th>
                             <th>Location</th>
                             <th>Loan Amount</th>
                             <th>Salary</th>
@@ -468,7 +471,7 @@
         </section>
 
 
-        <!-- ================= ASSIGNMENTS ================= -->
+
 
         <section id="assignmentsSection" class="section hidden">
 
@@ -487,6 +490,15 @@
                         <input type="checkbox" id="selectAllAssignments" aria-label="Select all filtered customers" onchange="toggleAllAssignments(this)">
                         Select all filtered customers
                     </label>
+
+                    <label class="bulk-select-label" for="assignmentSelectCount">
+                        Select first
+                        <input type="number" id="assignmentSelectCount" min="1" step="1" placeholder="500" aria-label="Number of filtered customers to select" onchange="selectAssignmentCount()">
+                        customers from top of list
+                    </label>
+                    <button type="button" class="secondary-btn" onclick="selectAssignmentCount()">
+                        Select First N
+                    </button>
 
                     <select id="bulkAssignmentAgent" aria-label="Select assignee for bulk assignment">
                         <option value="">Select assignee</option>
@@ -585,7 +597,7 @@
         </section>
 
 
-        <!-- ================= PERFORMANCE ================= -->
+        
 
         <section id="performanceSection" class="section hidden">
 
@@ -602,7 +614,7 @@
 
         </section>
 
-        <!-- ================= AGENT MANAGEMENT ================= -->
+        
 
         <section id="agentsSection" class="section hidden">
 
@@ -705,8 +717,6 @@
 
 </div>
 
-
-<!-- ================= CUSTOMER MODAL ================= -->
 
 <div id="customerModal" class="modal hidden">
 
@@ -836,7 +846,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Delayed Payments</label>
+                    <label>Delay Payments</label>
                     <input id="delays">
                 </div>
 
@@ -887,6 +897,7 @@
                         <option>Eligible</option>
                         <option>Review</option>
                         <option>Completed</option>
+                        <option>Rejected</option>
 
                     </select>
 

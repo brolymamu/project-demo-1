@@ -6,7 +6,7 @@ let users = [
     {
         id: "Rohan",
         password: "Login@123",
-        name: "Rohan Kumar",
+        name: "Rohan",
         role: "agent",
         team: "TEAM01",
         branch: "MAGADI"
@@ -50,12 +50,13 @@ let users = [
     {
         id: "Malik",
         password: "backend@123",
-        name: "Saif Malik Backend",
+        name: "Backend Administrator",
         role: "backend",
         branch: "Bangalore"
     }
 
 ];
+
 
 
 let customers = [
@@ -99,7 +100,7 @@ let customers = [
 
         remarks: "Customer interested in balance transfer.",
 
-        agentId: "Rohan"
+        agentId: "AG1001"
     },
 
 
@@ -142,7 +143,7 @@ let customers = [
 
         remarks: "Customer requested callback.",
 
-        agentId: "Rohan"
+        agentId: "AG1001"
     },
 
 
@@ -185,7 +186,7 @@ let customers = [
 
         remarks: "Documents awaited.",
 
-        agentId: "Rahul"
+        agentId: "AG1002"
     },
 
 
@@ -224,11 +225,11 @@ let customers = [
 
         banksApplied: "HDFC",
 
-        status: "Completed",
+        status: "Approved",
 
-        remarks: "Application completed.",
+        remarks: "Application Approved.",
 
-        agentId: "Rahul"
+        agentId: "AG1002"
     },
 
 
@@ -271,7 +272,7 @@ let customers = [
 
         remarks: "Needs further verification.",
 
-        agentId: "Rohan"
+        agentId: "AG1003"
     }
 
 ];
@@ -324,7 +325,7 @@ window.addEventListener("storage", event => {
 });
 
 
-
+/* ================= LOGIN ================= */
 
 function login() {
 
@@ -571,6 +572,34 @@ function getVisibleCustomers() {
 }
 
 
+function renderPerformanceLoanAmounts() {
+    const data = getVisibleCustomers();
+    const members = currentUser.role === "tl"
+        ? users.filter(user => user.role === "agent" && user.team === currentUser.team)
+        : users.filter(user => user.role === "agent");
+
+    if (currentUser.role === "tl" && data.some(customer => customer.agentId === currentUser.id)) {
+        members.push(currentUser);
+    }
+
+    const uniqueMembers = [...new Map(members.map(member => [member.id, member])).values()];
+    document.getElementById("performanceCards").innerHTML = uniqueMembers.map(member => {
+        const memberCustomers = data.filter(customer => customer.agentId === member.id);
+        const amountForStatus = status => memberCustomers
+            .filter(customer => customer.status === status)
+            .reduce((total, customer) => total + Number(customer.loanAmount || 0), 0);
+
+        return `
+            <div class="performance-card">
+                <h3>${escapeHTML(member.name)}</h3>
+                <div class="performance-stat"><span>Pending Loan Amount</span><strong>${formatMoney(amountForStatus("Pending"))}</strong></div>
+                <div class="performance-stat"><span>Eligible Loan Amount</span><strong>${formatMoney(amountForStatus("Eligible"))}</strong></div>
+                <div class="performance-stat"><span>Approved Loan Amount</span><strong>${formatMoney(amountForStatus("Approved"))}</strong></div>
+            </div>
+        `;
+    }).join("");
+}
+
 /* ================= NAVIGATION ================= */
 
 function showSection(section) {
@@ -685,7 +714,7 @@ function showSection(section) {
             .textContent =
             "Application performance overview";
 
-        renderPerformance();
+        renderPerformanceLoanAmounts();
 
     }
 
@@ -734,9 +763,9 @@ function updateDashboard() {
         ).length;
 
 
-    const completed =
+    const Approved =
         data.filter(
-            c => c.status === "Completed"
+            c => c.status === "Approved"
         ).length;
 
     const rejected =
@@ -745,7 +774,7 @@ function updateDashboard() {
         ).length;
 
     const approvedLoanTotal = data
-        .filter(c => ["Eligible", "Completed"].includes(c.status))
+        .filter(c => ["Eligible", "Approved"].includes(c.status))
         .reduce((sum, c) => sum + Number(c.loanAmount || 0), 0);
 
     const pendingLoanTotal = data
@@ -782,8 +811,8 @@ function updateDashboard() {
 
 
     document
-        .getElementById("statusCompleted")
-        .textContent = completed;
+        .getElementById("statusApproved")
+        .textContent = Approved;
 
     document
         .getElementById("statusRejected")
@@ -825,12 +854,12 @@ function updateDashboard() {
 
 
     document
-        .getElementById("completedBar")
+        .getElementById("ApprovedBar")
         .style.width =
         (
             total === 0
                 ? 0
-                : (completed / total) * 100
+                : (Approved / total) * 100
         ) + "%";
 
     document
@@ -2007,7 +2036,7 @@ function createCustomerFromRow(row, index) {
         hdfcEmi: parseImportNumber(get("hdfcemi")),
         otherEmi: parseImportNumber(get("otheremi")),
         banksApplied: get("banksapplied"),
-        status: ["Pending", "Eligible", "Review", "Completed", "Rejected"].includes(get("status"))
+        status: ["Pending", "Eligible", "Review", "Approved", "Rejected"].includes(get("status"))
             ? get("status")
             : "Pending",
         remarks: get("remarks", "callremarks"),
@@ -2468,10 +2497,10 @@ function renderPerformance() {
                     ).length;
 
 
-                const completed =
+                const Approved =
                     data.filter(
                         c =>
-                            c.status === "Completed"
+                            c.status === "Approved"
                     ).length;
 
 
@@ -2508,8 +2537,8 @@ function renderPerformance() {
                     </div>
 
                     <div class="performance-stat">
-                        <span>Completed</span>
-                        <strong>${completed}</strong>
+                        <span>Approved</span>
+                        <strong>${Approved}</strong>
                     </div>
 
                     <div class="performance-stat">

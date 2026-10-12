@@ -160,15 +160,15 @@
                     Dashboard
                 </h2>
 
-                <p id="pageSubtitle">
+                <h3 id="pageSubtitle">
                     Welcome back
-                </p>
+                </h3>
             </div>
 
             <div class="top-user">
 
                 <div class="notification">
-                    🔔
+                    
                 </div>
 
                 <div class="avatar small" id="topAvatar">
@@ -293,12 +293,12 @@
 
 
                         <div class="status-row">
-                            <span>Completed</span>
-                            <strong id="statusCompleted">0</strong>
+                            <span>Approved</span>
+                            <strong id="statusApproved">0</strong>
                         </div>
 
                         <div class="progress">
-                            <div id="completedBar"></div>
+                            <div id="ApprovedBar"></div>
                         </div>
 
                         <div class="status-row">
@@ -421,8 +421,8 @@
                         Eligible
                     </option>
 
-                    <option value="Completed">
-                        Completed
+                    <option value="Approved">
+                        Approved
                     </option>
 
                     <option value="Review">
@@ -494,9 +494,11 @@
                     <label class="bulk-select-label" for="assignmentSelectCount">
                         Select first
                         <input type="number" id="assignmentSelectCount" min="1" step="1" placeholder="500" aria-label="Number of filtered customers to select" onchange="selectAssignmentCount()">
-                        
+                        customers from top of list
                     </label>
-                  
+                    <button type="button" class="secondary-btn" onclick="selectAssignmentCount()">
+                        Select First N
+                    </button>
 
                     <select id="bulkAssignmentAgent" aria-label="Select assignee for bulk assignment">
                         <option value="">Select assignee</option>
@@ -894,7 +896,7 @@
                         <option>Pending</option>
                         <option>Eligible</option>
                         <option>Review</option>
-                        <option>Completed</option>
+                        <option>Approved</option>
                         <option>Rejected</option>
 
                     </select>

@@ -4,9 +4,9 @@
 let users = [
 
     {
-        id: "Malik",
+        id: "Rohan",
         password: "Login@123",
-        name: "Saif Malik",
+        name: "Rohan Kumar",
         role: "agent",
         team: "TEAM01",
         branch: "MAGADI"
@@ -50,7 +50,7 @@ let users = [
     {
         id: "Malik",
         password: "backend@123",
-        name: "Backend Administrator",
+        name: "Saif Malik Backend",
         role: "backend",
         branch: "Bangalore"
     }
@@ -99,7 +99,7 @@ let customers = [
 
         remarks: "Customer interested in balance transfer.",
 
-        agentId: "AG1001"
+        agentId: "Rohan"
     },
 
 
@@ -142,7 +142,7 @@ let customers = [
 
         remarks: "Customer requested callback.",
 
-        agentId: "AG1001"
+        agentId: "Rohan"
     },
 
 
@@ -185,7 +185,7 @@ let customers = [
 
         remarks: "Documents awaited.",
 
-        agentId: "AG1002"
+        agentId: "Rahul"
     },
 
 
@@ -228,7 +228,7 @@ let customers = [
 
         remarks: "Application completed.",
 
-        agentId: "AG1002"
+        agentId: "Rahul"
     },
 
 
@@ -271,7 +271,7 @@ let customers = [
 
         remarks: "Needs further verification.",
 
-        agentId: "AG1003"
+        agentId: "Rohan"
     }
 
 ];
@@ -324,7 +324,7 @@ window.addEventListener("storage", event => {
 });
 
 
-/* ================= LOGIN ================= */
+
 
 function login() {
 

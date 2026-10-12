@@ -382,7 +382,7 @@ textarea {
 .topbar {
     height: 80px;
 
-    background: white;
+    background: #1f2937;
 
     border-bottom: 1px solid #e5e7eb;
 
@@ -397,12 +397,15 @@ textarea {
 
 .topbar h2 {
     font-size: 22px;
+    color: white;
+    
+    
 }
 
-.topbar p {
+.topbar h3 {
     font-size: 13px;
 
-    color: #6b7280;
+    color: #cdd0d7;
 
     margin-top: 4px;
 }
@@ -903,7 +906,7 @@ td {
     color: #02080c;
 }
 
-.status.completed {
+.status.Approved {
     background: #00ad31;
 
     color: #02050e;

@@ -44,7 +44,7 @@
                 >
 
                 <button onclick="togglePassword()" type="button">
-                    👁
+                    
                 </button>
             </div>
         </div>
@@ -55,6 +55,10 @@
 
         <p id="loginError" class="login-error"></p>
 
+        <div class="demo-login">
+            <p>Assigner access: <strong>ASSIGN01</strong> / <strong>Assign@123</strong></p>
+            <button type="button" onclick="fillLogin('ASSIGN01', 'Assign@123')">Use Assigner Login</button>
+        </div>
 
     </div>
 
@@ -80,23 +84,29 @@
 
         <nav>
 
-            <button class="nav-item active" onclick="showSection('dashboard')">
+            <button id="dashboardNav" class="nav-item active" onclick="showSection('dashboard')">
                 <span>📊</span>
                 Dashboard
             </button>
 
-            <button class="nav-item" onclick="showSection('customers')">
+            <button id="customersNav" class="nav-item" onclick="showSection('customers')">
                 <span>👥</span>
                 Customers
             </button>
 
-            <button
-                id="assignmentNav"
-                class="nav-item"
-                onclick="showSection('assignments')"
-            >
-                <span>🔄</span>
-                Assignments
+            <button id="leadsToApproveNav" class="nav-item hidden" onclick="showSection('leads-to-approve')">
+                <span>✅</span>
+                Leads to Approve
+            </button>
+
+            <button id="tlBankApplicationsNav" class="nav-item hidden" onclick="showSection('tl-bank-applications')">
+                <span>🏦</span>
+                Sent to Bank
+            </button>
+
+            <button id="bankQueueNav" class="nav-item hidden" onclick="showSection('bank-queue')">
+                <span>🏦</span>
+                Bank Applications
             </button>
 
             <button
@@ -108,14 +118,57 @@
                 Performance
             </button>
 
-            <button
-                id="agentsNav"
-                class="nav-item hidden"
-                onclick="showSection('agents')"
-            >
-                <span>🧑‍💼</span>
-                Manage Agents
-            </button>
+            <details id="membersNavGroup" class="members-nav-group hidden">
+                <summary class="nav-item members-nav-toggle">
+                    <span>👤</span>
+                    Members
+                </summary>
+                <div class="members-nav-links">
+                    <button
+                        id="agentsNav"
+                        class="nav-item hidden"
+                        onclick="showSection('agents')"
+                    >
+                        <span>🧑‍💼</span>
+                        Manage Agents
+                    </button>
+
+                    <button
+                        id="teamLeadersNav"
+                        class="nav-item hidden"
+                        onclick="showSection('team-leaders')"
+                    >
+                        <span>🧑‍🤝‍🧑</span>
+                        Manage Team Leaders
+                    </button>
+
+                    <button
+                        id="managersNav"
+                        class="nav-item hidden"
+                        onclick="showSection('managers')"
+                    >
+                        <span>🏢</span>
+                        Manage Managers
+                    </button>
+
+                    <button
+                        id="assignersNav"
+                        class="nav-item hidden"
+                        onclick="showSection('assigners')"
+                    >
+                        <span>📋</span>
+                        Manage Assigners
+                    </button>
+                    <button
+                        id="bankBackendsNav"
+                        class="nav-item hidden"
+                        onclick="showSection('bank-backends')"
+                    >
+                        <span>🏦</span>
+                        Manage Bank Backends
+                    </button>
+                </div>
+            </details>
 
         </nav>
 
@@ -140,7 +193,7 @@
             </div>
 
             <button class="logout-btn" onclick="logout()">
-                🚪 Logout
+                 Logout
             </button>
 
         </div>
@@ -171,8 +224,22 @@
                     
                 </div>
 
-                <div class="avatar small" id="topAvatar">
-                    A
+                <div class="top-account-menu">
+                    <button
+                        class="avatar small top-avatar-button"
+                        id="topAvatar"
+                        type="button"
+                        aria-label="Open account options"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        onclick="toggleAccountMenu()"
+                    >
+                        A
+                    </button>
+                    <div id="accountMenu" class="account-menu hidden">
+                        <button type="button" onclick="openChangePassword()">Change Password</button>
+                        <button type="button" onclick="logout()">Logout</button>
+                    </div>
                 </div>
 
             </div>
@@ -186,59 +253,69 @@
 
             <div class="stats-grid">
 
-                <div class="stat-card">
+                <a href="#" role="button" class="stat-card stat-card-button" onkeydown="if(event.key === ' '){event.preventDefault(); this.click();}" onclick="openDashboardCustomers('all'); return false;" aria-label="Show all customers">
                     <div class="stat-icon blue">👥</div>
-
                     <div>
                         <p>Total Customers</p>
                         <h2 id="totalCustomers">0</h2>
                     </div>
-                </div>
+                </a>
 
-
-                <div class="stat-card">
+                 <a href="#" role="button" class="stat-card stat-card-button" onkeydown="if(event.key === ' '){event.preventDefault(); this.click();}" onclick="openDashboardCustomers('not-called'); return false;" aria-label="Show customers not called">
                     <div class="stat-icon orange">⏳</div>
+                    <div>
+                        <p>Not Called</p>
+                        <h2 id="newCustomers">0</h2>
+                    </div>
+                </a>
 
+                <a href="#" role="button" class="stat-card stat-card-button" onkeydown="if(event.key === ' '){event.preventDefault(); this.click();}" onclick="openDashboardCustomers('pending'); return false;" aria-label="Show pending customers">
+                    <div class="stat-icon orange">⏳</div>
                     <div>
                         <p>Pending</p>
                         <h2 id="pendingCustomers">0</h2>
                     </div>
-                </div>
+                </a>
 
-
-                <div class="stat-card">
-                    <div class="stat-icon green">✓</div>
-
+                <a href="#" role="button" class="stat-card stat-card-button" onkeydown="if(event.key === ' '){event.preventDefault(); this.click();}" onclick="openDashboardCustomers('rejected'); return false;" aria-label="Show rejected customers">
+                    <div class="stat-icon purple">✕</div>
                     <div>
-                        <p>Eligible customers</p>
-                        <h2 id="eligibleCustomers">0</h2>
+                        <p>Rejected</p>
+                        <h2 id="rejectedCustomers">0</h2>
                     </div>
-                </div>
+                </a>
 
             </div>
 
             <div class="loan-breakdown-grid">
-                <div class="stat-card">
+                <a href="#" role="button" class="stat-card stat-card-button" onkeydown="if(event.key === ' '){event.preventDefault(); this.click();}" onclick="openDashboardCustomers('approved-loan'); return false;" aria-label="Show eligible and approved loan applications">
                     <div class="stat-icon green">✓</div>
                     <div>
                         <p>Approved Loan Amount</p>
                         <h2 id="approvedLoanTotal">₹0</h2>
                     </div>
-                </div>
-                <div class="stat-card">
+                </a>
+                <a href="#" role="button" class="stat-card stat-card-button" onkeydown="if(event.key === ' '){event.preventDefault(); this.click();}" onclick="openDashboardCustomers('pending-loan'); return false;" aria-label="Show pending and review applications">
                     <div class="stat-icon orange">⏳</div>
                     <div>
                         <p>Pending Applications</p>
                         <h2 id="pendingLoanTotal">₹0</h2>
                     </div>
-                </div>
-                <div class="stat-card">
+                </a>
+                <a href="#" role="button" class="stat-card stat-card-button" onkeydown="if(event.key === ' '){event.preventDefault(); this.click();}" onclick="openDashboardCustomers('rejected-loan'); return false;" aria-label="Show rejected loan applications">
                     <div class="stat-icon purple">✕</div>
                     <div>
                         <p>Rejected</p>
                         <h2 id="rejectedLoanTotal">₹0</h2>
                     </div>
-                </div>
+                </a>
+                <a href="#" role="button" class="stat-card stat-card-button" onkeydown="if(event.key === ' '){event.preventDefault(); this.click();}" onclick="openDashboardCustomers('disbursed'); return false;" aria-label="Show disbursed applications">
+                    <div class="stat-icon green">₹</div>
+                    <div>
+                        <p>Disbursed Amount</p>
+                        <h2 id="disbursedLoanTotal">₹0</h2>
+                    </div>
+                </a>
             </div>
 
             <div class="dashboard-grid">
@@ -291,6 +368,37 @@
                             <div id="eligibleBar"></div>
                         </div>
 
+                        <div class="status-row">
+                            <span>TL Approved</span>
+                            <strong id="statusBankTlApproved">0</strong>
+                        </div>
+                        <div class="progress">
+                            <div id="bankTlApprovedBar"></div>
+                        </div>
+
+                        <div class="status-row">
+                            <span>Logged In</span>
+                            <strong id="statusBankLoggedIn">0</strong>
+                        </div>
+                        <div class="progress">
+                            <div id="bankLoggedInBar"></div>
+                        </div>
+
+                        <div class="status-row">
+                            <span>Underwriting</span>
+                            <strong id="statusBankUnderwriting">0</strong>
+                        </div>
+                        <div class="progress">
+                            <div id="bankUnderwritingBar"></div>
+                        </div>
+
+                        <div class="status-row">
+                            <span>Documents Pending</span>
+                            <strong id="statusBankDocumentsPending">0</strong>
+                        </div>
+                        <div class="progress">
+                            <div id="bankDocumentsPendingBar"></div>
+                        </div>
 
                         <div class="status-row">
                             <span>Approved</span>
@@ -407,10 +515,21 @@
                     oninput="renderCustomers()"
                 >
 
-                <select id="statusFilter" onchange="renderCustomers()">
+                <input
+                    type="text"
+                    id="customerFilterLocation"
+                    placeholder="Filter by location (AP, TL, KA)"
+                    oninput="renderCustomers()"
+                >
+
+                <select id="statusFilter" onchange="clearDashboardMetricFilter(); renderCustomers()">
 
                     <option value="all">
                         All Status
+                    </option>
+
+                    <option value="Not Called">
+                        Not Called
                     </option>
 
                     <option value="Pending">
@@ -433,14 +552,57 @@
                         Rejected
                     </option>
 
+                    <option value="Disbursed">
+                        Disbursed
+                    </option>
+                    <option value="TL Approved">TL Approved</option>
+                    <option value="Logged In">Logged In (Bank)</option>
+                    <option value="Underwriting">Underwriting</option>
+                    <option value="Documents Pending">Documents Pending</option>
+
                 </select>
 
+            </div>
+
+            <div id="assignmentFilters" class="filters assignment-filters hidden">
+                <select id="assignmentAssigneeFilter" onchange="renderCustomers()">
+                    <option value="all">All Assignees</option>
+                    <option value="unassigned">None Assigned</option>
+                </select>
+
+                <select id="assignmentStatusFilter" onchange="renderCustomers()">
+                    <option value="all">All Assignment Status</option>
+                    <option value="unassigned">Not Assigned</option>
+                    <option value="assigned">Assigned</option>
+                </select>
+            </div>
+
+            <div id="bulkAssignmentPanel" class="panel bulk-assignment-panel">
+                <div class="bulk-assignment-controls">
+                    <label class="bulk-select-label">
+                        <input type="checkbox" id="selectAllAssignments" aria-label="Select all filtered customers" onchange="toggleAllAssignments(this)">
+                        Select all filtered customers
+                    </label>
+
+                    <label class="bulk-select-label" for="assignmentSelectCount">
+                        Select first
+                        <input type="number" id="assignmentSelectCount" min="1" step="1" placeholder="500" aria-label="Number of filtered customers to select" onchange="selectAssignmentCount()">
+                    </label>
+
+                    <select id="bulkAssignmentAgent" aria-label="Select assignee for bulk assignment">
+                        <option value="">Select assignee</option>
+                    </select>
+
+                    <button type="button" class="primary-btn" onclick="bulkAssignCustomers()">Assign Selected</button>
+                    <button type="button" class="secondary-btn" onclick="autoAssignSelectedCustomers()">Auto Assign Selected (Equal)</button>
+                    <strong id="assignmentSelectionCount">0 selected</strong>
+                </div>
             </div>
 
 
             <div class="table-container">
 
-                <table>
+                <table class="customer-table">
 
                     <thead>
 
@@ -456,7 +618,9 @@
                             <th>CIBIL</th>
                             <th>BT Amount</th>
                             <th>Status</th>
-                            <th>Agent</th>
+                            <th>Agent / Last Caller</th>
+                            <th>Team Leader</th>
+                            <th>Assign To</th>
                             <th>Action</th>
                         </tr>
 
@@ -471,131 +635,97 @@
         </section>
 
 
+        
 
-
-        <section id="assignmentsSection" class="section hidden">
-
+        <section id="leadsToApproveSection" class="section hidden">
             <div class="section-header">
-
                 <div>
-                    <h2>Customer Assignments</h2>
-                    <p>Assign and reassign customers to agents</p>
-                </div>
-
-            </div>
-
-            <div class="panel bulk-assignment-panel">
-                <div class="bulk-assignment-controls">
-                    <label class="bulk-select-label">
-                        <input type="checkbox" id="selectAllAssignments" aria-label="Select all filtered customers" onchange="toggleAllAssignments(this)">
-                        Select all filtered customers
-                    </label>
-
-                    <label class="bulk-select-label" for="assignmentSelectCount">
-                        Select first
-                        <input type="number" id="assignmentSelectCount" min="1" step="1" placeholder="500" aria-label="Number of filtered customers to select" onchange="selectAssignmentCount()">
-                        
-                    </label>
-                   
-
-                    <select id="bulkAssignmentAgent" aria-label="Select assignee for bulk assignment">
-                        <option value="">Select assignee</option>
-                    </select>
-
-                    <button type="button" class="primary-btn" onclick="bulkAssignCustomers()">
-                        Assign Selected
-                    </button>
-
-                    <strong id="assignmentSelectionCount">0 selected</strong>
+                    <h2>Leads to Approve</h2>
+                    <p>Applications forwarded by agents in your team</p>
                 </div>
             </div>
-
-            <div class="filters assignment-filters">
-
-                <input
-                    type="text"
-                    id="assignmentFilterName"
-                    placeholder="Filter by name"
-                    oninput="renderAssignments()"
-                >
-
-                <input
-                    type="tel"
-                    id="assignmentFilterPhone"
-                    placeholder="Filter by phone"
-                    oninput="renderAssignments()"
-                >
-
-                <input
-                    type="number"
-                    id="assignmentFilterCibil"
-                    placeholder="Filter by CIBIL"
-                    oninput="renderAssignments()"
-                >
-
-                <input
-                    type="number"
-                    id="assignmentFilterLoan"
-                    placeholder="Filter by loan amount"
-                    oninput="renderAssignments()"
-                >
-
-                <input
-                    type="text"
-                    id="assignmentFilterPlace"
-                    placeholder="Filter by place / address"
-                    oninput="renderAssignments()"
-                >
-
-                <input
-                    type="text"
-                    id="assignmentFilterLocation"
-                    placeholder="Filter by location (AP, TL, KA)"
-                    oninput="renderAssignments()"
-                >
-
-                <select id="assignmentAssigneeFilter" onchange="renderAssignments()">
-                    <option value="all">All Assignees</option>
-                    <option value="unassigned">None Assigned</option>
-                </select>
-
-                <select id="assignmentStatusFilter" onchange="renderAssignments()">
-                    <option value="all">All Assignment Status</option>
-                    <option value="unassigned">Not Assigned</option>
-                    <option value="assigned">Assigned</option>
-                </select>
-
-            </div>
-
             <div class="table-container">
-
                 <table>
-
                     <thead>
-
                         <tr>
-                            <th><input type="checkbox" aria-label="Select all filtered customers" onchange="toggleAllAssignments(this)"></th>
                             <th>Customer</th>
-                            <th>Location</th>
-                            <th>Loan</th>
-                            <th>CIBIL</th>
-                            <th>Current Agent</th>
-                            <th>Assign To</th>
+                            <th>Agent</th>
+                            <th>Loan Amount</th>
+                            <th>Documents</th>
+                            <th>Bank</th>
+                            <th>Forwarded</th>
                             <th>Action</th>
                         </tr>
-
                     </thead>
-
-                    <tbody id="assignmentTableBody"></tbody>
-
+                    <tbody id="leadsToApproveTableBody"></tbody>
                 </table>
-
             </div>
-
         </section>
 
+        <section id="tlBankApplicationsSection" class="section hidden">
+            <div class="section-header">
+                <div>
+                    <h2>Applications Sent to Bank</h2>
+                    <p id="tlBankApplicationsDescription">Applications you approved and forwarded to bank processing</p>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="tl-bank-applications-table">
+                    <thead>
+                        <tr>
+                            <th>Customer / Application</th>
+                            <th>Agent</th>
+                            <th>Loan Amount</th>
+                            <th>Bank</th>
+                            <th>Forwarded</th>
+                            <th>Bank Application No.</th>
+                            <th>Bank Status</th>
+                            <th>Banking Update</th>
+                            <th>Last Updated</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tlBankApplicationsTableBody"></tbody>
+                </table>
+            </div>
+        </section>
 
-        
+        <section id="bankQueueSection" class="section hidden">
+            <div class="section-header">
+                <div>
+                    <h2>Bank Applications</h2>
+                    <p id="bankQueueDescription">Applications approved by team leaders and routed to your bank</p>
+                </div>
+            </div>
+            <div class="bank-queue-tabs" role="tablist" aria-label="Filter bank applications by status">
+                <button type="button" class="bank-queue-tab active" data-bank-status="all" onclick="setBankQueueStatusFilter('all')">All <span id="bankQueueCountAll">0</span></button>
+                <button type="button" class="bank-queue-tab" data-bank-status="TL Approved" onclick="setBankQueueStatusFilter('TL Approved')">TL Approved <span id="bankQueueCountTlApproved">0</span></button>
+                <button type="button" class="bank-queue-tab" data-bank-status="Logged In" onclick="setBankQueueStatusFilter('Logged In')">Logged In <span id="bankQueueCountLoggedIn">0</span></button>
+                <button type="button" class="bank-queue-tab" data-bank-status="Underwriting" onclick="setBankQueueStatusFilter('Underwriting')">Underwriting <span id="bankQueueCountUnderwriting">0</span></button>
+                <button type="button" class="bank-queue-tab" data-bank-status="Documents Pending" onclick="setBankQueueStatusFilter('Documents Pending')">Documents Pending <span id="bankQueueCountDocumentsPending">0</span></button>
+                <button type="button" class="bank-queue-tab" data-bank-status="Approved" onclick="setBankQueueStatusFilter('Approved')">Approved <span id="bankQueueCountApproved">0</span></button>
+                <button type="button" class="bank-queue-tab" data-bank-status="Rejected" onclick="setBankQueueStatusFilter('Rejected')">Rejected <span id="bankQueueCountRejected">0</span></button>
+                <button type="button" class="bank-queue-tab" data-bank-status="Disbursed" onclick="setBankQueueStatusFilter('Disbursed')">Disbursed <span id="bankQueueCountDisbursed">0</span></button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Customer / Application</th>
+                            <th>Loan Details</th>
+                            <th>Contact &amp; Address</th>
+                            <th>Uploaded Files</th>
+                            <th>TL Approval</th>
+                            <th>Bank Application No.</th>
+                            <th>Bank Status</th>
+                            <th>Banking Update</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bankQueueTableBody"></tbody>
+                </table>
+            </div>
+        </section>
 
         <section id="performanceSection" class="section hidden">
 
@@ -620,7 +750,7 @@
 
                 <div>
                     <h2>Manage Team Members</h2>
-                    <p>Backend users can add, edit, or remove agents, TLs, and managers; managers can add or remove agents</p>
+                    <p>Backend administrators can manage agents, TLs, managers, and create assigner accounts; managers can manage agents only</p>
                 </div>
 
             </div>
@@ -642,18 +772,33 @@
                         <input id="newAgentPassword" type="password" required>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group member-team-field">
                         <label for="newAgentTeam">Team</label>
-                        <input id="newAgentTeam" value="TEAM01" required>
+                        <input id="newAgentTeam" value="TEAM01">
                     </div>
-
+                    <div class="form-group member-bank-field hidden">
+                        <label for="newAgentBank">Bank</label>
+                        <input id="newAgentBank" list="supportedBanks" placeholder="e.g. AXIS Bank" autocomplete="off">
+                    </div>
                     <div class="form-group">
-                        <label for="newAgentRole">Role</label>
-                        <select id="newAgentRole" required>
-                            <option value="agent">Agent</option>
-                            <option value="tl">Team Leader (TL)</option>
-                            <option value="manager">Manager</option>
-                        </select>
+                        <label for="newAgentBranch">Branch</label>
+                        <input id="newAgentBranch" placeholder="e.g. Bangalore">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAgentFloor">Floor (optional)</label>
+                        <input id="newAgentFloor" placeholder="e.g. Floor 2">
+                    </div>
+                    <div class="form-group member-assignment-field">
+                        <label for="newAgentLocations">Locations (state codes, comma-separated)</label>
+                        <input id="newAgentLocations" placeholder="e.g. MH, AP, TL">
+                    </div>
+                    <div class="form-group member-assignment-field">
+                        <label for="newAgentMinLoan">Minimum loan amount (₹)</label>
+                        <input id="newAgentMinLoan" type="number" min="0" step="1" value="0">
+                    </div>
+                    <div class="form-group member-assignment-field">
+                        <label for="newAgentMaxLoan">Maximum loan amount (₹)</label>
+                        <input id="newAgentMaxLoan" type="number" min="0" step="1" placeholder="No limit">
                     </div>
 
                     <button type="submit" class="primary-btn">+ Add Team Member</button>
@@ -676,9 +821,33 @@
                         <label for="editAgentPassword">New Password</label>
                         <input id="editAgentPassword" type="password" placeholder="Leave blank to keep current password">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group member-team-field">
                         <label for="editAgentTeam">Team</label>
-                        <input id="editAgentTeam" required>
+                        <input id="editAgentTeam">
+                    </div>
+                    <div class="form-group member-bank-field hidden">
+                        <label for="editAgentBank">Bank</label>
+                        <input id="editAgentBank" list="supportedBanks" placeholder="e.g. AXIS Bank" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="editAgentBranch">Branch</label>
+                        <input id="editAgentBranch" placeholder="e.g. Bangalore">
+                    </div>
+                    <div class="form-group">
+                        <label for="editAgentFloor">Floor (optional)</label>
+                        <input id="editAgentFloor" placeholder="e.g. Floor 2">
+                    </div>
+                    <div class="form-group member-assignment-field">
+                        <label for="editAgentLocations">Locations (state codes, comma-separated)</label>
+                        <input id="editAgentLocations" placeholder="e.g. MH, AP, TL">
+                    </div>
+                    <div class="form-group member-assignment-field">
+                        <label for="editAgentMinLoan">Minimum loan amount (₹)</label>
+                        <input id="editAgentMinLoan" type="number" min="0" step="1" value="0">
+                    </div>
+                    <div class="form-group member-assignment-field">
+                        <label for="editAgentMaxLoan">Maximum loan amount (₹)</label>
+                        <input id="editAgentMaxLoan" type="number" min="0" step="1" placeholder="No limit">
                     </div>
                     <div class="form-group">
                         <label for="editAgentRole">Role</label>
@@ -686,6 +855,8 @@
                             <option value="agent">Agent</option>
                             <option value="tl">Team Leader (TL)</option>
                             <option value="manager">Manager</option>
+                            <option value="assigner">Assigner</option>
+                            <option value="bank_backend">Bank Backend</option>
                         </select>
                     </div>
                     <button type="submit" class="primary-btn">Save Changes</button>
@@ -693,14 +864,26 @@
                 </form>
             </div>
 
+            <datalist id="supportedBanks">
+                <option value="AXIS Bank"></option>
+                <option value="IDFC First Bank"></option>
+                <option value="HDFC Bank"></option>
+                <option value="ICICI Bank"></option>
+                <option value="State Bank of India"></option>
+                <option value="Kotak Mahindra Bank"></option>
+                <option value="Yes Bank"></option>
+            </datalist>
+
             <div class="table-container agent-table-container">
                 <table>
                     <thead>
                         <tr>
                             <th>Team Member</th>
                             <th>Login ID</th>
-                            <th>Team</th>
+                            <th>Team / Bank</th>
+                            <th>Floor</th>
                             <th>Role</th>
+                            <th>Auto-assign criteria</th>
                             <th>Assigned Customers</th>
                             <th>Action</th>
                         </tr>
@@ -709,12 +892,62 @@
                 </table>
             </div>
 
+            <div id="assignerManagementPanel" class="panel agent-management-panel">
+                <h3>Manage Assigner Accounts</h3>
+                <p>Backend administrators can edit assigner login IDs, names, and passwords or remove assigner accounts.</p>
+                <div class="table-container agent-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Login ID</th>
+                                <th>Name</th>
+                                <th>Branch</th>
+                                <th>New Password</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assignerAccountTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </section>
 
     </main>
 
 </div>
 
+
+<div id="changePasswordModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="changePasswordTitle">
+    <div class="password-modal-content">
+        <div class="modal-header">
+            <div>
+                <h2 id="changePasswordTitle">Change Password</h2>
+                <p>Update the password for your account.</p>
+            </div>
+            <button type="button" class="close-btn" onclick="closeChangePassword()" aria-label="Close">×</button>
+        </div>
+        <form id="changePasswordForm" class="change-password-form">
+            <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <input id="currentPassword" type="password" autocomplete="current-password" required>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input id="newPassword" type="password" autocomplete="new-password" minlength="6" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmNewPassword">Confirm New Password</label>
+                <input id="confirmNewPassword" type="password" autocomplete="new-password" minlength="6" required>
+            </div>
+            <p id="changePasswordMessage" class="password-message" role="status"></p>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" onclick="closeChangePassword()">Cancel</button>
+                <button type="submit" class="primary-btn">Save Password</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <div id="customerModal" class="modal hidden">
 
@@ -737,12 +970,13 @@
             </button>
 
         </div>
-
+        
 
         <form id="customerForm">
 
             <input type="hidden" id="customerId">
 
+            <!-- Personal Information       -->
 
             <h3 class="form-section-title">
                 Personal Information
@@ -766,17 +1000,68 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Address</label>
+                    <label>Present Address</label>
                     <input id="customerAddress">
+                </div>
+
+                <div class="form-group">
+                    <label>PERMANENT ADDRESS</label>
+                    <input id="companyName">
                 </div>
 
                 <div class="form-group">
                     <label>Location / State Code</label>
                     <input id="customerLocation" placeholder="e.g. AP, TL, KA">
                 </div>
+                
+                 
+
+                 <div class="form-group">
+                    <label>CIBIL Score</label>
+                    <input id="cibil" type="number">
+                </div>
+                  
+                <div class="form-group">
+                    <label>Personal Email-ID</label>
+                    <input id="cibil" type="text">
+                </div>
+                
+ 
+                
 
             </div>
 
+            <!-- ///////////////////////////office information/////////////////////////// -->
+
+             <h3 class="form-section-title">
+                Office information
+            </h3>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input id="companyName">
+                </div>
+
+                <div class="form-group">
+                    <label>Office Email-ID</label>
+                    <input id="cibil" type="number">
+                </div>
+
+                <div class="form-group">
+                    <label>Salary</label>
+                    <input id="companyName">
+                </div>
+
+                <div class="form-group">
+                    <label>Office Address</label>
+                    <input id="companyName">
+                </div>
+
+            </div>
+
+            <!-- ///////////////////////LOAN Information//////////////////////////////-->
 
             <h3 class="form-section-title">
                 Loan Information
@@ -805,34 +1090,22 @@
                 </div>
 
             </div>
-
-
-            <h3 class="form-section-title">
-                Employment & Credit
-            </h3>
-
-            <div class="form-grid">
-
-                <div class="form-group">
-                    <label>Monthly Salary</label>
-                    <input id="salary" type="number">
-                </div>
-
-                <div class="form-group">
-                    <label>Company Name</label>
-                    <input id="companyName">
-                </div>
-
+            
+               
                 <div class="form-group">
                     <label>Company Listed Bank</label>
                     <input id="companyBank">
                 </div>
 
-                <div class="form-group">
-                    <label>CIBIL Score</label>
-                    <input id="cibil" type="number">
-                </div>
+               
 
+            </div>
+
+            <h3 class="form-section-title">
+                Financial Obligations
+            </h3>
+
+            <div class="form-grid">
                 <div class="form-group">
                     <label>Number of Enquiries</label>
                     <input id="enquiries" type="number">
@@ -878,7 +1151,9 @@
                 </div>
 
             </div>
+                
 
+            <!-- APPLICATION -->
 
             <h3 class="form-section-title">
                 Application
@@ -891,11 +1166,17 @@
 
                     <select id="customerStatus">
 
+                        <option>Not Called</option>
                         <option>Pending</option>
                         <option>Eligible</option>
                         <option>Review</option>
                         <option>Approved</option>
                         <option>Rejected</option>
+                        <option>Disbursed</option>
+                        <option>TL Approved</option>
+                        <option>Logged In</option>
+                        <option>Underwriting</option>
+                        <option>Documents Pending</option>
 
                     </select>
 
@@ -905,6 +1186,11 @@
                 <div class="form-group">
                     <label>Banks Already Applied</label>
                     <input id="banksApplied">
+                </div>
+
+                <div class="form-group">
+                    <label>Bank we are pushing for</label>
+                    <input id="banksPushing">
                 </div>
 
             </div>
@@ -950,6 +1236,40 @@
             </div>
 
 
+            <section class="customer-documents-section">
+                <h3 class="form-section-title">Customer Documents</h3>
+                <div class="form-group">
+                    <label for="customerDocumentsInput">Upload customer documents</label>
+                    <div id="customerDocumentDropZone" class="customer-document-dropzone">
+                        <span class="document-drop-icon" aria-hidden="true">⇧</span>
+                        <strong>Drag and drop files here</strong>
+                        <span>or choose multiple files below</span>
+                        <input
+                            id="customerDocumentsInput"
+                            type="file"
+                            multiple
+                            accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.csv"
+                            onchange="uploadCustomerDocuments(event)"
+                        >
+                    </div>
+                    <small>Save the customer record before uploading documents.</small>
+                </div>
+                <div class="document-bulk-toolbar">
+                    <label class="bulk-select-label">
+                        <input type="checkbox" id="selectAllCustomerDocuments" onchange="toggleAllCustomerDocuments(this.checked)" aria-label="Select all customer documents">
+                        Select all
+                    </label>
+                    <span id="selectedDocumentCount" aria-live="polite">0 selected</span>
+                    <div class="document-bulk-actions">
+                        <button type="button" class="action-btn" id="downloadSelectedDocumentsButton" onclick="downloadSelectedCustomerDocuments()" disabled>Download Selected</button>
+                        <button type="button" class="delete-document-btn" id="deleteSelectedDocumentsButton" onclick="deleteSelectedCustomerDocuments()" disabled>Delete Selected</button>
+                    </div>
+                </div>
+                <div id="customerDocumentList" class="customer-document-list">
+                    <p class="history-empty">No documents uploaded.</p>
+                </div>
+            </section>
+
             <section class="customer-history-section">
                 <h3 class="form-section-title">Activity History</h3>
                 <div id="customerHistory" class="customer-history">
@@ -957,6 +1277,8 @@
                 </div>
             </section>
 
+
+            <p id="forwardToTLMessage" class="customer-phone hidden"></p>
 
             <div class="modal-footer">
 
@@ -970,22 +1292,173 @@
 
                 <button
                     type="submit"
-                    class="primary-btn"
+                    class="secondary-btn"
                 >
                     Save Application
+                </button>
+                <button
+                    id="forwardCustomerToTLButton"
+                    type="submit"
+                    class="primary-btn hidden"
+                >
+                    Save &amp; Forward to TL
                 </button>
 
             </div>
 
         </form>
+        
 
-    </div>
+        </div>
 
 </div>
 
+<button id="calculatorToggle" class="calculator-float" aria-label="Open calculator">🧮</button>
+
+<div id="calculatorPopup" class="calculator-popup" hidden>
+  <div class="calculator-header">
+    <strong>Fire calculator</strong>
+    <button id="calculatorClose" aria-label="Close">✕</button>
+  </div>
+
+  <div class="calculator-content">
+    <label class="calculator-field" for="calculatorSalary"> 
+      <span>Salary (₹ / month)</span>
+      <input id="calculatorSalary" type="number" min="0" step="100" value="8200">
+    </label>
+
+    <label class="calculator-field" for="calculatorEmi">
+      <span>Existing EMI (₹ / month)</span>
+      <input id="calculatorEmi" type="number" min="0" step="100" value="0">
+    </label>
+
+    <div class="calculator-result" aria-live="polite">
+      <span>Eligible Loan Amount</span>
+      <strong id="calculatorEligibleAmount">₹0</strong>
+      <small id="calculatorEligibleLakh">0.0 lakh</small>
+    </div>
+    <p class="calculator-note">Estimate based on salary slab and existing EMI.</p>
+  </div>
+</div>
 
 <script src="script.js"></script>
+<script>
+(() => {
+    let activeMemberBranchForm = null;
+    const addForm = document.getElementById("agentForm");
+    const editForm = document.getElementById("editAgentForm");
+
+    [addForm, editForm].forEach(form => {
+        form?.addEventListener("submit", () => {
+            activeMemberBranchForm = form;
+        }, true);
+    });
+
+    document.addEventListener("submit", event => {
+        if (event.target === addForm || event.target === editForm) {
+            setTimeout(() => { activeMemberBranchForm = null; }, 0);
+        }
+    });
+
+    const originalSaveAgents = saveAgents;
+    saveAgents = function (...args) {
+        if (activeMemberBranchForm === addForm) {
+            const member = users.find(user => user.id === document.getElementById("newAgentId").value.trim());
+            if (member) member.branch = document.getElementById("newAgentBranch").value.trim();
+        } else if (activeMemberBranchForm === editForm) {
+            const newId = document.getElementById("editAgentId").value.trim();
+            const oldId = document.getElementById("editAgentOriginalId").value.trim();
+            const member = users.find(user => user.id === newId) || users.find(user => user.id === oldId);
+            if (member) member.branch = document.getElementById("editAgentBranch").value.trim();
+        }
+        return originalSaveAgents.apply(this, args);
+    };
+
+    const editPanel = document.getElementById("editAgentPanel");
+    new MutationObserver(() => {
+        if (editPanel.classList.contains("hidden")) return;
+        const originalId = document.getElementById("editAgentOriginalId").value.trim();
+        const member = users.find(user => user.id === originalId);
+        if (member) document.getElementById("editAgentBranch").value = member.branch || "";
+    }).observe(editPanel, { attributes: true, attributeFilter: ["class"] });
+})();
+</script>
+<script>
+(() => {
+    const removedKey = "loanPortalRemovedAssignerIds";
+    const removedIds = new Set(JSON.parse(localStorage.getItem(removedKey) || "[]"));
+    users = users.filter(user => !(user.role === "assigner" && removedIds.has(user.id)));
+
+    const originalRenderAgents = renderAgents;
+    renderAgents = function () {
+        originalRenderAgents();
+        renderAssignerAccounts();
+    };
+
+    window.renderAssignerAccounts = function () {
+        const body = document.getElementById("assignerAccountTableBody");
+        if (!body || currentUser?.role !== "backend") return;
+        const assigners = users.map((user, index) => ({ user, index }))
+            .filter(item => item.user.role === "assigner");
+
+        body.innerHTML = assigners.length ? assigners.map(({ user, index }) => `
+            <tr>
+                <td><input id="assignerId${index}" value="${escapeHTML(user.id)}" aria-label="Assigner login ID"></td>
+                <td><input id="assignerName${index}" value="${escapeHTML(user.name)}" aria-label="Assigner name"></td>
+                <td><input id="assignerBranch${index}" value="${escapeHTML(user.branch || "")}" aria-label="Assigner branch"></td>
+                <td><input id="assignerPassword${index}" type="password" placeholder="Leave blank to keep current" aria-label="New assigner password"></td>
+                <td>
+                    <button type="button" class="action-btn" onclick="saveAssignerAccount(${index})">Save</button>
+                    <button type="button" class="delete-customer-btn" onclick="removeAssignerAccount(${index})">Remove</button>
+                </td>
+            </tr>
+        `).join("") : '<tr><td colspan="5" style="text-align:center;padding:24px">No assigner accounts.</td></tr>';
+    };
+
+    window.saveAssignerAccount = function (index) {
+        if (currentUser?.role !== "backend") return alert("Only the backend administrator can manage assigners.");
+        const target = users[index];
+        if (!target || target.role !== "assigner") return;
+        const newId = document.getElementById(`assignerId${index}`).value.trim();
+        const newName = document.getElementById(`assignerName${index}`).value.trim();
+        const newBranch = document.getElementById(`assignerBranch${index}`).value.trim();
+        const newPassword = document.getElementById(`assignerPassword${index}`).value;
+        if (!newId || !newName) return alert("Login ID and name are required.");
+        if (users.some((user, userIndex) => userIndex !== index && user.id.toLowerCase() === newId.toLowerCase())) {
+            return alert("That Login ID is already in use.");
+        }
+
+        const oldId = target.id;
+        const removed = new Set(JSON.parse(localStorage.getItem(removedKey) || "[]"));
+        if (oldId !== newId) {
+            removed.add(oldId);
+            target.id = newId;
+        }
+        removed.delete(newId);
+        localStorage.setItem(removedKey, JSON.stringify([...removed]));
+        target.name = newName;
+        target.branch = newBranch;
+        target.isCustom = true;
+        if (newPassword) target.password = newPassword;
+        saveAgents();
+        renderAgents();
+        alert("Assigner account saved.");
+    };
+
+    window.removeAssignerAccount = function (index) {
+        if (currentUser?.role !== "backend") return alert("Only the backend administrator can remove assigners.");
+        const target = users[index];
+        if (!target || target.role !== "assigner") return;
+        if (!confirm(`Remove assigner account ${target.id}? This cannot be undone.`)) return;
+        const removed = new Set(JSON.parse(localStorage.getItem(removedKey) || "[]"));
+        removed.add(target.id);
+        localStorage.setItem(removedKey, JSON.stringify([...removed]));
+        users.splice(index, 1);
+        saveAgents();
+        renderAgents();
+    };
+})();
+</script>
 
 </body>
 </html>
-
